@@ -105,7 +105,7 @@ brownian(x1[:,0], runtime, dt, sigma, out=x1[:,1:])
 brownian(x2[:,0], runtime, dt, sigma, out=x2[:,1:])
 
 # Plot the 2D trajectory.
-'''plot(x1[0],x1[1])
+plot(x1[0],x1[1])
 plot(x2[0],x2[1])
 
 # Mark the start and end points.
@@ -121,9 +121,9 @@ xlabel('x', fontsize=16)
 ylabel('y', fontsize=16)
 axis('equal')
 grid(True)
-show()'''
+show()
 
-fig, ax = plt.subplots()
+'''fig, ax = plt.subplots()
 points, = ax.plot(x1[1], 'o')
 ax.set_ylim(0, 1)
 
@@ -138,3 +138,4 @@ def generate_points():
 ani = animation.FuncAnimation(fig, update, generate_points, interval=300)
 ani.save('animation.gif', writer='imagemagick', fps=4);
 plt.show()
+'''
