@@ -5,18 +5,18 @@ import scipy
 import math
 
 inter = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]] #5x5 interaction matirx between 5 molecules
-lipids = [(1,2),(3,4)] # lipid sets
+#lipids = [(1,2),(3,4)]  lipid sets
 mass=[0,0,0,0,0] # masses of each particle to calculate accl
 crit_dist=0.0 # distance below which a lipids are bonded
+bond_length = 1
 
-def spring_force(atom1, atom2, k):
+def spring_force(atom1, atom2, k, mean):
   r = scipy.spatial.distance.euclidean(atom1.x, atom2.x)
-  if r<crit_dist:
-    return -k*r
-  else:
-    return force(atom1,atom2)
+  F = -k*(r-mean)
+  dirvec = (atom2.x-atom1.x)/r
+  return F*dirvec
 
-def force(atom1,atom2):
+def lennard_force(atom1,atom2):
   r = scipy.spatial.distance.euclidean(atom1.x, atom2.x)
   return inter[atom1-1][atom2-1]*(1./r**6 - 1./r**12)
 
@@ -44,3 +44,7 @@ for i in range(atom_len_1): # relapce atom_len_1 with numer of atoms
   vel_fin=vel_init+t*accl_vec
   pos_final=pos_init+vel_init*t+0.5*accl_vec*t**2
       
+if r<crit_dist:
+    return spring_force(atom1, atom2)
+  else:
+    return lennard_force(atom1,atom2)
