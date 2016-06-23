@@ -4,6 +4,20 @@ from Bead import
 import scipy
 import math
 
+dim = 2
+
+#Atom number parameters
+N_atoms = 100 #Partition into atom types
+
+atoms = []
+x0 = np.rand(N_atoms)
+y0 = np.rand(N-atoms)
+
+for i in range(N_atoms):
+    atoms[i] = (x0[i], v0[i], a0[i], 0)
+    
+#Constructing lipids by bonding between all pairs of 1 and 2 and pairs of 3 and 4
+
 inter = np.asarray([[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]]) #5x5 interaction matirx between 5 molecules
 
 #Masses
