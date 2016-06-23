@@ -1,12 +1,21 @@
 ''' Implements basic physics for bead and spring models '''
 
-import Bead
+from Bead import 
 import scipy
 import math
 
 inter = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]] #5x5 interaction matirx between 5 molecules
-#lipids = [(1,2),(3,4)]  lipid sets
-mass=[0,0,0,0,0] # masses of each particle to calculate accl
+
+
+#Masses
+mass_water = 0.1
+mass_lip1h = 0.2
+mass_lip1t = 0.3
+mass_lip2h = 0.4
+mass_lip2t = 0.5
+
+masses = np.asarray([mass_water,mass_lip1h,mass_lip1t,mass_lip2h,mass_lip2t]) # masses of each particle to calculate accl
+
 crit_dist=0.0 # distance below which a lipids are bonded
 bond_length = 1
 
@@ -16,33 +25,35 @@ def spring_force(atom1, atom2, k, mean):
   dirvec = (atom2.x-atom1.x)/r
   return F*dirvec
 
-def lennard_force(atom1,atom2):
+def lennard_force(atom1, atom2, e):
   r = scipy.spatial.distance.euclidean(atom1.x, atom2.x)
-  return inter[atom1-1][atom2-1]*(1./r**6 - 1./r**12)
+  F = e*(1./r**6 - 1./r**12)
+  dirvec = (atom2.x-atom1.x)/r
+  return F*dirvec
 
-for i in range(atom_len_1): # relapce atom_len_1 with numer of atoms
-  force_vec=[0,0]
-  atom1=0 # get atom1 from Bead. It should be a number between 1 and 5
+def euler_integrate(initial, slope, time_step):
+  return np.asarray(initial) + time_step*np.asarray(slope)
+
+for i in range(N_atoms): # relapce atom_len_1 with numer of atoms
+  force_net = np.zeros(2)
+  force_vec = np.zeros(2)
+  atom1 = i # get atom1 from Bead. It should be a number between 1 and 5
   
-  for j in range(atom_len_2): # replace atom_len_2 with the numer of atome atom1 interacts with
-    atom2=0 # get interacting atom2 from bead. It should be a number between 1 and 5
-    
-    if ((atom1,atom2) in lipids) or ((atom2,atom1) in lipids:
-      force_exp=spring_force(atom1,atom2,inter[atom1-1][atom2-1])
-      angl=math.atan((atom2.x-atom1.x)[1]/(atom2.x-atom1.x)[0])
-      force_vec[0]+=force_exp*math.cos(angl)
-      force_vec[1]+=force_exp*math.sin(angl)
+  for j in range(N_atoms): # replace atom_len_2 with the numer of atome atom1 interacts with
+    if (i==j):
+      continue
+    atom2=j # get interacting atom2 from bead. It should be a number between 1 and 5
+      
+    if (atom1.isBonded(atom2)):
+      force_vec = spring_force(atom1, atom2, inter[atom1.arg][atom2.arg], bond_length)
     else:
-      force_exp=force(atom1,atom2,inter[atom1-1][atom2-1])
-      angl=math.atan((atom2.x-atom1.x)[1]/(atom2.x-atom1.x)[0])
-      force_vec[0]+=force_exp*math.cos(angl)
-      force_vec[1]+=force_exp*math.sin(angl)
-  
-  force_net=(force_vec[0]**2+force_vec[1]**2)**0.5
-  angle_net=math.atan(force_vec[1]/force_vec[0])
-  accl_vec=force_vec/mass
-  vel_fin=vel_init+t*accl_vec
-  pos_final=pos_init+vel_init*t+0.5*accl_vec*t**2
+      force_vec = lennard_force(atom1, atom2, inter[atom1.arg][atom2.arg])
+    
+    force_net = force_net + force_vec
+
+accel_vec = (np.asarray([1,1,1,1,1])/masses)*(force_vec)
+vel_vec = euler_integrate(vel_vec, accel_vec, dt)
+pos_vec = euler_integrate(pos_vec, vel_vec, dt)
       
 if r<crit_dist:
     return spring_force(atom1, atom2)
